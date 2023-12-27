@@ -2,20 +2,22 @@ import string
 
 import pymongo
 import random
+
+
 # from bson import ObjectId
 # from models import User, Comment, Post
 
 
 class User:
-    def __init__(self, _id, username, email):
+    def __init__(self, _id, username, email, posts):
         self.id = _id
         self.collection = 'users_collection'
         self.username = username
         self.email = email
-        self.posts = []
+        self.posts = posts
 
 
-class Comments:
+class Comment:
     def __init__(self, _id, text, user_id, post_id):
         self.id = _id
         self.user_id = user_id
@@ -24,14 +26,15 @@ class Comments:
         self.text = text
 
 
-class Posts:
-    def __init__(self, _id, title, content, user_id):
+class Post:
+    def __init__(self, _id, user_id, title, content, comments):
         self.id = _id
         self.user_id = user_id
         self.collection = 'posts_collection'
         self.title = title
         self.content = content
-        self.comments = []
+        self.comments = comments
+
 
 
 class MongoDB:
@@ -74,6 +77,39 @@ class MongoDB:
         collection.update_one({'id': obj.id}, {'$set': {field_to_change: change}})
 
 
+def generate_comments(user_id, post_id):
+    num_comments = random.randint(1, 5)
+    comments = []
+    for i in range(num_comments):
+        text = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=50))
+        comment_id = user_id * 1000 + post_id * 100 + i * 10 + random.randint(100, 2000)
+        comment = Comment(_id=comment_id, user_id=user_id, post_id=post_id, text=text)
+        attrs = vars(comment)
+        print(attrs)
+        # print(', '.join("%s: %s" % item for item in attrs.items()))
+        comments.append(comment)
+
+    return comments
+
+
+def generate_posts(user_id):
+    num_posts = random.randint(1, 5)
+    posts = []
+    for i in range(num_posts):
+        title = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=30))
+        content = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=10))
+        post_id = user_id + i + random.randint(100, 2000)
+
+        comment_ids = [comment.id for comment in generate_comments(user_id, post_id)]
+        post = Post(_id=post_id, user_id=user_id, title=title, content=content, comments=comment_ids)
+        attrs = vars(post)
+        print(attrs)
+        # print(', '.join("%s: %s" % item for item in attrs.items()))
+        posts.append(post)
+
+    return posts
+
+
 def generate_users():
     domains = ['yandex.ru', 'mail.yandex.com', 'outlook.com', 'mai.com']
     users = []
@@ -83,25 +119,24 @@ def generate_users():
         domain = random.choice(domains)
         email = ''.join(random.choices(string.ascii_lowercase, k=7)) + f"@{domain}"
 
-        users.append(User(_id=i, username=username, email=email))
+        post_ids = [post.id for post in generate_posts(i)]
+        user = User(_id=i, username=username, email=email, posts=post_ids)
+        attrs = vars(user)
+        print(attrs)
+        # print(', '.join("%s: %s" % item for item in attrs.items()))
+        users.append(user)
 
     return users
 
+
 def main():
-
-    user1 = User(1, "username1", "email@user1")
-
-    post1 = Posts(1, 'fkgdjg', 'fkgjdfg', 1)
-
-    user2 = User(2, "username2", "email@user2")
-    user3 = User(3, "username3", "email@user3")
-    db = MongoDB()
-    # db.delete_from_collection(user1)
-    db.find_in_collection(2, 'users_collection')
-    db.update_elem_in_collection(user2, 'username', 'New_username')
-    db.find_in_collection(2, 'users_collection')
+    generate_users()
+    # db = MongoDB()
+    # # db.delete_from_collection(user1)
+    # db.find_in_collection(2, 'users_collection')
+    # db.update_elem_in_collection(user2, 'username', 'New_username')
+    # db.find_in_collection(2, 'users_collection')
 
 
 if __name__ == "__main__":
     main()
-
