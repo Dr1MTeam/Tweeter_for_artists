@@ -9,13 +9,16 @@ class Comment(BaseModel):
 
 class Post(BaseModel):
     id: int          # == userid == author id
+    # post_collection: str
     title: str
     content: str
-    comments: List[Comment] = []
+    comments: List[int]
 
 
 class User(BaseModel):
     id: int
+    # user_collection: str
     username: str
     email: str
-    posts: List[Post] = []
+    posts: List[int]
+
