@@ -14,7 +14,6 @@ class Repository:
     async def create(self, user: UserUpdate) -> str: # создание юзера
         insert_result = await self._db_collections[0].insert_one(dict(user))
         return str(insert_result.inserted_id)
-    
 
     async def get_all(self, collection: int) -> list[User] | list[Post] | list[Comment]: # вся коллекция
         db = []
@@ -30,8 +29,8 @@ class Repository:
     async def update(self, id: str, obj, collection: int) -> User | Post | Comment | None:
         updated_obj = await self._db_collections[collection].find_one_and_replace(get_filter(id), dict(obj))
         return map(updated_obj)
-    ########################################nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-    async def create_post(self, post: Post) -> str: # юзер создаёт пост
+    ########################################nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+    async def create_post(self, post: PostUpdate) -> str: # юзер создаёт пост
         user = map(await self._db_collections[0].find_one(get_filter(post.user_id)), self._db_collections[0].name)
         if (user.posts != None):
             user.posts.append(post.id)
@@ -41,7 +40,7 @@ class Repository:
         insert_result = await self._db_collections[1].insert_one(dict(post))
         return str(insert_result.inserted_id)
     
-    async def create_comment(self, comment: Comment) -> str: # юзер создаёт пост
+    async def create_comment(self, comment: CommentUpdate) -> str: # юзер создаёт пост
         user = map(await self._db_collections[0].find_one(get_filter(comment.user_id)), self._db_collections[0].name)
         post = map(await self._db_collections[1].find_one(get_filter(comment.post_id)), self._db_collections[1].name)
 

@@ -2,7 +2,7 @@ import string
 
 import pymongo
 import random
-
+from bson import ObjectId
 import asyncio
 # from bson import ObjectId
 from models.models import User, Comment, Post
@@ -106,7 +106,11 @@ async def main():
     
     await connect_and_init_mongo()
     r = await  Repository.get_instance()
-    await r.create(UserUpdate(username="User2", email="email2@mail.com"))
+    # await r.create(UserUpdate(username="User3", email="email2@mail.com"))
+    user = await r.get_by_id(id=ObjectId('658dccf4dbfb770547c7d9d8'), collection=0)
+    await r.create_post(PostUpdate(user_id=user.id, title='What are we doing', content=["lol"]))
+    
+    print(user)
     # u = await r.get_by_id(id=2, collection=0)
     # print(u)
     # us = await r.get_all(collection=0)
