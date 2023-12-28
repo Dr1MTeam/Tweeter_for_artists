@@ -13,7 +13,7 @@ def get_memcached_client() -> Client:
 
 def connect_and_init_memcached():
     global memcached_client
-    memcached_uri = os.getenv('MEMCACHED_URI')
+    memcached_uri = 'localhost:11211'
     try:
         memcached_client = HashClient(memcached_uri.split(','), serde=JsonSerializer())
         print(f'Connected to memcached with uri {memcached_uri}')
@@ -26,3 +26,4 @@ def close_memcached_connect():
     if memcached_client is None:
         return
     memcached_client.close()
+

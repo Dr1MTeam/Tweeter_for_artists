@@ -12,8 +12,6 @@ def get_elasticsearch_client() -> AsyncElasticsearch:
 async def connect_and_init_elasticsearch():
     global elasticsearch_client
     elasticsearch_uri = "http://localhost:9200"
-
-
     try:
         elasticsearch_client = AsyncElasticsearch(elasticsearch_uri.split(','))
         await elasticsearch_client.info()

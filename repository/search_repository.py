@@ -2,7 +2,7 @@ import os
 
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
-
+from utils.mongo_utils import get_db_collection
 from utils.elasticsearch_utils import get_elasticsearch_client
 from models.models import User, Post, Comment
 
@@ -47,7 +47,7 @@ class SearchStudentRepository:
 
     @staticmethod
     def get_instance(elasticsearch_client: AsyncElasticsearch = Depends(get_elasticsearch_client)):
-        elasticsearch_index = "http://localhost:9200"
+        elasticsearch_index = await get_db_collection()
 
         return SearchStudentRepository(elasticsearch_index, elasticsearch_client)
 
