@@ -2,13 +2,13 @@ import string
 
 import pymongo
 import random
-
+from bson import ObjectId
 import asyncio
 # from bson import ObjectId
 from models.models import User, Comment, Post
 from utils.mongo_utils import connect_and_init_mongo
 from repository.repository import Repository
-
+from models.models import UserUpdate, PostUpdate, CommentUpdate
 class MongoDB:
     def __init__(self):
         self.client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -106,7 +106,19 @@ async def main():
     
     await connect_and_init_mongo()
     r = await  Repository.get_instance()
-    await r.create(User(id=1, username="User1", email="email@mail.com"))
+    # await r.create(UserUpdate(username="User3", email="email2@mail.com"))
+    user = await r.get_by_id(id=ObjectId('658dccf4dbfb770547c7d9d8'), collection=0)
+    await r.create_post(PostUpdate(user_id=user.id, title='What are we doing', content=["lol"]))
+    
+    print(user)
+    # u = await r.get_by_id(id=2, collection=0)
+    # print(u)
+    # us = await r.get_all(collection=0)
+    #print(us)
+    # p = Post(id=1, user_id=1, title="Don't do crimes", content=["crimes are bad"])
+    #await r.create_post(post=p)
+    # c = Comment(id = 0, user_id=1, post_id=0, text="no, crimes are bad!")
+    # await r.create_comment(c)
     #await r.create(User(id=1, username="User1", email="email@mail.com"))
     #print(f"---{r._db_collections}")
     # print (generate_users())
