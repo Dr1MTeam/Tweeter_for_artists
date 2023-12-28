@@ -48,5 +48,8 @@ class Repository:
         return map(db_student)
 
     @staticmethod
-    def get_instance(db_collections: AsyncIOMotorCollection = Depends(get_db_collection)):
-        return Repository(db_collections)
+    async def get_instance():
+        db_coll = await get_db_collection()
+        r = Repository(db_coll)
+        print(f"==={type(db_coll)}")
+        return r

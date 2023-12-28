@@ -7,7 +7,7 @@ import asyncio
 # from bson import ObjectId
 from models.models import User, Comment, Post
 from utils.mongo_utils import connect_and_init_mongo
-from repository import Repository
+from repository.repository import Repository
 
 class MongoDB:
     def __init__(self):
@@ -105,8 +105,10 @@ def generate_users():
 async def main():
     
     await connect_and_init_mongo()
-    r = Repository.get_instance()
-
+    r = await  Repository.get_instance()
+    await r.create(User(id=1, username="User1", email="email@mail.com"))
+    #await r.create(User(id=1, username="User1", email="email@mail.com"))
+    #print(f"---{r._db_collections}")
     # print (generate_users())
     # db = MongoDB()
     # # db.delete_from_collection(user1)
