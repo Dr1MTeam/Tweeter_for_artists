@@ -5,9 +5,9 @@ import random
 
 
 # from bson import ObjectId
-# from models import User, Comment, Post
-
-
+from models.models import User, Comment, Post
+from utils.mongo_utils import connect_and_init_mongo
+'''
 class User:
     def __init__(self, _id, username, email, posts):
         self.id = _id
@@ -34,7 +34,7 @@ class Post:
         self.title = title
         self.content = content
         self.comments = comments
-
+'''
 
 
 class MongoDB:
@@ -83,7 +83,7 @@ def generate_comments(user_id, post_id):
     for i in range(num_comments):
         text = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=50))
         comment_id = user_id * 1000 + post_id * 100 + i * 10 + random.randint(100, 2000)
-        comment = Comment(_id=comment_id, user_id=user_id, post_id=post_id, text=text)
+        comment = Comment(id=comment_id, user_id=user_id, post_id=post_id, text=text)
         attrs = vars(comment)
         print(attrs)
         # print(', '.join("%s: %s" % item for item in attrs.items()))
@@ -101,7 +101,8 @@ def generate_posts(user_id):
         post_id = user_id + i + random.randint(100, 2000)
 
         comment_ids = [comment.id for comment in generate_comments(user_id, post_id)]
-        post = Post(_id=post_id, user_id=user_id, title=title, content=content, comments=comment_ids)
+        content_list = [content]
+        post = Post(id=post_id, user_id=user_id, title=title, content=content_list, comments=comment_ids)
         attrs = vars(post)
         print(attrs)
         # print(', '.join("%s: %s" % item for item in attrs.items()))
@@ -120,7 +121,7 @@ def generate_users():
         email = ''.join(random.choices(string.ascii_lowercase, k=7)) + f"@{domain}"
 
         post_ids = [post.id for post in generate_posts(i)]
-        user = User(_id=i, username=username, email=email, posts=post_ids)
+        user = User(id=i, username=username, email=email, posts=post_ids)
         attrs = vars(user)
         print(attrs)
         # print(', '.join("%s: %s" % item for item in attrs.items()))
@@ -130,7 +131,8 @@ def generate_users():
 
 
 def main():
-    generate_users()
+    connect_and_init_mongo()
+    print (generate_users())
     # db = MongoDB()
     # # db.delete_from_collection(user1)
     # db.find_in_collection(2, 'users_collection')
