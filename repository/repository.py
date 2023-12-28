@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 
 from utils.mongo_utils import get_db_collection, get_filter, map
 from models.models import User, Post, Comment
-
+from models.models import UserUpdate, PostUpdate, CommentUpdate
 
 class Repository:
     _db_collections: list[AsyncIOMotorCollection]
@@ -11,7 +11,7 @@ class Repository:
     def __init__(self, db_collections: list[AsyncIOMotorCollection]):
         self._db_collections = db_collections
 
-    async def create(self, user: User) -> str: # создание юзера
+    async def create(self, user: UserUpdate) -> str: # создание юзера
         insert_result = await self._db_collections[0].insert_one(dict(user))
         return str(insert_result.inserted_id)
     
@@ -22,12 +22,12 @@ class Repository:
             db.append(map(obj, self._db_collections[collection].name))
         return db
 
-    async def get_by_id(self, id: int, collection: int) -> User | Post | Comment | None:
+    async def get_by_id(self, id: str, collection: int) -> User | Post | Comment | None:
         print(f'Get {id} from {collection}')
         obj = await self._db_collections[collection].find_one(get_filter(id))
         return map(obj, self._db_collections[collection].name)
 
-    async def update(self, id: int, obj, collection: int) -> User | Post | Comment | None:
+    async def update(self, id: str, obj, collection: int) -> User | Post | Comment | None:
         updated_obj = await self._db_collections[collection].find_one_and_replace(get_filter(id), dict(obj))
         return map(updated_obj)
     ########################################nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
