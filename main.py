@@ -3,39 +3,11 @@ import string
 import pymongo
 import random
 
-
+import asyncio
 # from bson import ObjectId
 from models.models import User, Comment, Post
 from utils.mongo_utils import connect_and_init_mongo
-'''
-class User:
-    def __init__(self, _id, username, email, posts):
-        self.id = _id
-        self.collection = 'users_collection'
-        self.username = username
-        self.email = email
-        self.posts = posts
-
-
-class Comment:
-    def __init__(self, _id, text, user_id, post_id):
-        self.id = _id
-        self.user_id = user_id
-        self.post_id = post_id
-        self.collection = 'comments_collection'
-        self.text = text
-
-
-class Post:
-    def __init__(self, _id, user_id, title, content, comments):
-        self.id = _id
-        self.user_id = user_id
-        self.collection = 'posts_collection'
-        self.title = title
-        self.content = content
-        self.comments = comments
-'''
-
+from repository import Repository
 
 class MongoDB:
     def __init__(self):
@@ -130,9 +102,12 @@ def generate_users():
     return users
 
 
-def main():
-    connect_and_init_mongo()
-    print (generate_users())
+async def main():
+    
+    await connect_and_init_mongo()
+    r = Repository.get_instance()
+
+    # print (generate_users())
     # db = MongoDB()
     # # db.delete_from_collection(user1)
     # db.find_in_collection(2, 'users_collection')
@@ -141,4 +116,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
+    
+
+

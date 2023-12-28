@@ -8,6 +8,17 @@ from models.models import User, Post, Comment
 
 db_client: AsyncIOMotorClient = None
 
+
+async def get_db_collection() -> list[AsyncIOMotorCollection]:
+    mongo_db = "CoolTwitter"
+    mongo_collections = ["users_collection","posts_collection", "comments_collection"]
+    mc = []
+    for collection in mongo_collections:
+        mc.append(db_client.get_database(mongo_db).get_collection(collection))
+
+    return mc
+
+
 async def connect_and_init_mongo():
     global db_client
     mongo_uri = "mongodb://localhost:27017/"
@@ -33,8 +44,8 @@ def close_mongo_connect():
     db_client.close()
 
 
-def get_filter(id: str) -> dict:
-    return {'id': ObjectId(id)}
+def get_filter(id: int) -> dict:
+    return {'id': id}
 
 
 def map(obj: Any) -> User | Post | Comment | None:
