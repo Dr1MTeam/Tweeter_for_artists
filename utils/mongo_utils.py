@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 from bson import ObjectId
@@ -23,7 +22,7 @@ async def connect_and_init_mongo():
     global db_client
     mongo_uri = "mongodb://localhost:27017/"
     mongo_db = "CoolTwitter"
-    mongo_collections = ["users_collection","comments_collection","posts_collection"]
+    mongo_collections = ["users_collection", "comments_collection", "posts_collection"]
     try:
         db_client = AsyncIOMotorClient(mongo_uri)
         await db_client.server_info()
