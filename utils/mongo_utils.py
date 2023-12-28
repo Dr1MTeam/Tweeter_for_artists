@@ -48,12 +48,12 @@ def get_filter(id: int) -> dict:
     return {'id': id}
 
 
-def map(obj: Any) -> User | Post | Comment | None:
+def map(obj: Any, collection: str) -> User | Post | Comment | None:
     if obj is None:
         return None
-    if obj['collection'] == 'users_collection':
+    if collection == 'users_collection':
         return User(id=obj['id'], username=obj['username'], email=obj['email'], posts=obj['posts'], comments=obj['comments'])
-    if obj['collection'] == 'comments_collection':
+    if collection == 'comments_collection':
         return Comment(id=obj['id'], user_id=obj['user_id'], post_id=obj['post_id'], text=obj['text'])
-    if obj['collection'] == 'posts_collection':
+    if collection == 'posts_collection':
         return Post(id=obj['id'], user_id=obj['user_id'], title=obj['title'], content=obj['content'], comments=obj['comments'])
