@@ -6,14 +6,14 @@ class User(BaseModel):
     id: str
     username: str
     email: str
-    posts: Optional[List[int]] = None
-    comments: Optional[List[int]] = None
+    posts: Optional[List[str]] = None
+    comments: Optional[List[str]] = None
 
 class UserUpdate(BaseModel):
     username: str
     email: str
-    posts: Optional[List[int]] = None
-    comments: Optional[List[int]] = None
+    posts: Optional[List[str]] = None
+    comments: Optional[List[str]] = None
 
 class Comment(BaseModel):
     id: str
@@ -31,12 +31,12 @@ class Post(BaseModel):
     user_id: str
     title: str
     content: List[Union[str, bytes]]
-    comments: Optional[List[int]] = None
+    comments: Optional[List[str]] = None
 
 class PostUpdate(BaseModel):
     user_id: str
     title: str
     content: List[Union[str, bytes]]
-    comments: Optional[List[int]] = None
+    comments: Optional[List[str]] = None
 
 

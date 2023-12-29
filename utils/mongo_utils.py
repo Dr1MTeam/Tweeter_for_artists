@@ -1,3 +1,4 @@
+
 from typing import Any
 
 from bson import ObjectId
@@ -44,7 +45,7 @@ def close_mongo_connect():
 
 
 def get_filter(id: str) -> dict:
-    return {'_id': id}
+    return {'_id': ObjectId(id)}
 
 
 def map(obj: Any, collection: str) -> User | Post | Comment | None:

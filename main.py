@@ -106,11 +106,28 @@ async def main():
     
     await connect_and_init_mongo()
     r = await  Repository.get_instance()
-    # await r.create(UserUpdate(username="User3", email="email2@mail.com"))
-    user = await r.get_by_id(id=ObjectId('658dccf4dbfb770547c7d9d8'), collection=0)
-    await r.create_post(PostUpdate(user_id=user.id, title='What are we doing', content=["lol"]))
+    user_id1 = await r.create(UserUpdate(username="User1", email="email1@mail.com"))
+    user_id2 = await r.create(UserUpdate(username="User2", email="email2@mail.com"))
+    user_id3 = await r.create(UserUpdate(username="User3", email="email3@mail.com"))
+    post1 = await r.create_post(PostUpdate(user_id=user_id1, title='What are we doing1', content=["lol1"]))
+    post2 = await r.create_post(PostUpdate(user_id=user_id2, title='What are we doing2', content=["lol2"]))
+
+    comm1 = await r.create_comment(CommentUpdate(user_id=user_id1, post_id=post1, text="oooo2131ooooo"))
+    comm2 = await r.create_comment(CommentUpdate(user_id=user_id3, post_id=post2, text="ooo2312oooooo"))
+    await r.delete_post(id=post1)
+    await r.delete_comment(id=comm2)
+    #await r.delete_comment(id=comm1)
     
-    print(user)
+    #
+    #user_id2 = await r.create(UserUpdate(username="User1", email="email2@mail.com"))
+    #user_id3 = await r.create(UserUpdate(username="User3", email="email3@mail.com"))
+
+    #
+    #post2 = await r.create_post(PostUpdate(user_id=user_id2, title='What are we doing2', content=["lol2"]))
+    #post3 = await r.create_post(PostUpdate(user_id=user_id3, title='What are we doing3', content=["lol3"]))
+
+    
+
     # u = await r.get_by_id(id=2, collection=0)
     # print(u)
     # us = await r.get_all(collection=0)
