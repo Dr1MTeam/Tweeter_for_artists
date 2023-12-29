@@ -78,9 +78,8 @@ class SearchStudentRepository:
         return posts
 
     @staticmethod
-    async def get_instance():
+    async def get_instance(elasticsearch_client: AsyncElasticsearch = Depends(get_elasticsearch_client)):
         collections = await get_db_collection()
-        elasticsearch_client = await get_elasticsearch_client()
 
         elasticsearch_index = []
         for collection in collections:

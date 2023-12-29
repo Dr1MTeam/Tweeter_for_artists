@@ -4,6 +4,7 @@ import pymongo
 import random
 from bson import ObjectId
 import asyncio
+from fastapi import FastAPI
 # from bson import ObjectId
 from models.models import User, Comment, Post
 from utils.mongo_utils import connect_and_init_mongo
@@ -47,75 +48,20 @@ class MongoDB:
         collection = self.my_database[collections_name]
 
         collection.update_one({'id': obj.id}, {'$set': {field_to_change: change}})
+from handler.event_handlers import startup, shutdown
+from router.router import router
 
 
-def generate_comments(user_id, post_id):
-    num_comments = random.randint(1, 5)
-    comments = []
-    for i in range(num_comments):
-        text = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=50))
-        comment_id = user_id * 1000 + post_id * 100 + i * 10 + random.randint(100, 2000)
-        comment = Comment(id=comment_id, user_id=user_id, post_id=post_id, text=text)
-        attrs = vars(comment)
-        print(attrs)
-        # print(', '.join("%s: %s" % item for item in attrs.items()))
-        comments.append(comment)
 
-    return comments
+app = FastAPI()
+app.include_router(router, tags=["User", "Post", "Comment"], prefix="/api/app")
+app.add_event_handler("startup", startup)
+app.add_event_handler("shutdown", shutdown)
 
 
-def generate_posts(user_id):
-    num_posts = random.randint(1, 5)
-    posts = []
-    for i in range(num_posts):
-        title = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=30))
-        content = ''.join(random.choices(string.ascii_letters + string.digits + string.whitespace, k=10))
-        post_id = user_id + i + random.randint(100, 2000)
-
-        comment_ids = [comment.id for comment in generate_comments(user_id, post_id)]
-        content_list = [content]
-        post = Post(id=post_id, user_id=user_id, title=title, content=content_list, comments=comment_ids)
-        attrs = vars(post)
-        print(attrs)
-        # print(', '.join("%s: %s" % item for item in attrs.items()))
-        posts.append(post)
-
-    return posts
 
 
-def generate_users():
-    domains = ['yandex.ru', 'mail.yandex.com', 'outlook.com', 'mai.com']
-    users = []
-
-    for i in range(1, 6):  # Generating 10 objects
-        username = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-        domain = random.choice(domains)
-        email = ''.join(random.choices(string.ascii_lowercase, k=7)) + f"@{domain}"
-
-        post_ids = [post.id for post in generate_posts(i)]
-        user = User(id=i, username=username, email=email, posts=post_ids)
-        attrs = vars(user)
-        print(attrs)
-        # print(', '.join("%s: %s" % item for item in attrs.items()))
-        users.append(user)
-
-    return users
-
-
-async def main():
     
-    await connect_and_init_mongo()
-    r = await  Repository.get_instance()
-    user_id1 = await r.create(UserUpdate(username="User1", email="email1@mail.com"))
-    user_id2 = await r.create(UserUpdate(username="User2", email="email2@mail.com"))
-    user_id3 = await r.create(UserUpdate(username="User3", email="email3@mail.com"))
-    post1 = await r.create_post(PostUpdate(user_id=user_id1, title='What are we doing1', content=["lol1"]))
-    post2 = await r.create_post(PostUpdate(user_id=user_id2, title='What are we doing2', content=["lol2"]))
-
-    comm1 = await r.create_comment(CommentUpdate(user_id=user_id1, post_id=post1, text="oooo2131ooooo"))
-    comm2 = await r.create_comment(CommentUpdate(user_id=user_id3, post_id=post2, text="ooo2312oooooo"))
-    await r.delete_post(id=post1)
-    await r.delete_comment(id=comm2)
     #await r.delete_comment(id=comm1)
     
     #
@@ -146,8 +92,16 @@ async def main():
     # db.find_in_collection(2, 'users_collection')
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
-    
+'''
+r = await  Repository.get_instance()
+    user_id1 = await r.create(UserUpdate(username="User1", email="email1@mail.com"))
+    user_id2 = await r.create(UserUpdate(username="User2", email="email2@mail.com"))
+    user_id3 = await r.create(UserUpdate(username="User3", email="email3@mail.com"))
+    post1 = await r.create_post(PostUpdate(user_id=user_id1, title='What are we doing1', content=["lol1"]))
+    post2 = await r.create_post(PostUpdate(user_id=user_id2, title='What are we doing2', content=["lol2"]))
 
-
+    comm1 = await r.create_comment(CommentUpdate(user_id=user_id1, post_id=post1, text="oooo2131ooooo"))
+    comm2 = await r.create_comment(CommentUpdate(user_id=user_id3, post_id=post2, text="ooo2312oooooo"))
+    await r.delete_post(id=post1)
+    await r.delete_comment(id=comm2)
+'''

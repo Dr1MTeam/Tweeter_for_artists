@@ -93,8 +93,7 @@ class Repository:
         return db
 
     @staticmethod
-    async def get_instance():
-        db_coll = await get_db_collection()
+    async def get_instance(db_collections: list[AsyncIOMotorCollection] = Depends(get_db_collection)):
+        db_coll = db_collections # await get_db_collection()
         r = Repository(db_coll)
-        #print(f"==={type(db_coll)}")
         return r

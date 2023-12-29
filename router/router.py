@@ -8,54 +8,64 @@ from starlette.responses import Response
 from cache.memcached_utils import get_memcached_client
 from repository.repository import Repository
 from repository.search_repository import SearchStudentRepository
-from models.student import Student, UpdateStudentModel
+from models.models import User, Post, Comment
+from models.models import UserUpdate, PostUpdate, CommentUpdate
 
 router = APIRouter()
 
-
 @router.get("/")
-async def get_all_student(repository: Repository = Depends(Repository.get_instance)) -> list[Student]:
-    return await repository.get_all()
+def read_root():
+    return {"Hello": "World"}
 
+
+
+
+@router.get("/collection/{collection}")
+async def get_all(collection: int, repository: Repository = Depends(Repository.get_instance)) -> list[User] | list[Post] | list[Comment]:
+    return await repository.get_all(collection)
+@router.get("/collection/{collection}/{user_id}")
+async def get(collection: int, user_id: str, repository: Repository = Depends(Repository.get_instance),
+                                             memcached_client: HashClient = Depends(get_memcached_client)) -> list[User] | list[Post] | list[Comment]:
+    
+    obj = await repository.get_by_id(id = user_id, collection = collection)
+    o = [obj]
+    return o
 
 @router.get("/filter")
-async def get_by_name(name: str, repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
-    return await repository.find_by_name(name)
+async def get_by_name(username: str, repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
+    return await repository.find_by_username(username = username)
 
 
-@router.get("/{student_id}", response_model=Student)
-async def get_by_id(student_id: str,
+@router.get("user/{user_id}", response_model=User)
+async def get_by_id(user_id: str,
                     repository: Repository = Depends(Repository.get_instance),
                     memcached_client: HashClient = Depends(get_memcached_client)) -> Any:
-    if not ObjectId.is_valid(student_id):
+    if not ObjectId.is_valid(user_id):
         return Response(status_code=status.HTTP_400_BAD_REQUEST)
 
-    student = memcached_client.get(student_id)
+    user = memcached_client.get(str(user_id))
+    if user is not None:
+        return user
 
-    if student is not None:
-        return student
-
-    student = await repository.get_by_id(student_id)
-
-    if student is None:
+    user = await repository.get_by_id(str(user_id), collection=0)
+    if user is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-    memcached_client.add(student_id, student)
-
-    return student
+    memcached_client.add(user_id, user)
+    return user
 
 
 @router.post("/")
-async def add_student(student: UpdateStudentModel,
+async def add_user(user: UserUpdate,
                       repository: Repository = Depends(Repository.get_instance),
                       search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> str:
-    student_id = await repository.create(student)
-    await search_repository.create(student_id, student)
+    student_id = await repository.create(user)
+    await search_repository.create(student_id, user)
     return student_id
 
+'''
 
 @router.delete("/{student_id}")
-async def remove_student(student_id: str,
+async def remove_user(user_id: int,
                          repository: Repository = Depends(Repository.get_instance),
                          search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Response:
     if not ObjectId.is_valid(student_id):
@@ -79,3 +89,5 @@ async def update_student(student_id: str,
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     await search_repository.update(student_id, student_model)
     return student
+
+'''
