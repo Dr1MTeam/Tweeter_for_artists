@@ -20,23 +20,29 @@ def read_root():
 
 
 
-@router.get("/collection/{collection}")
-async def get_all(collection: int, repository: Repository = Depends(Repository.get_instance)) -> list[User] | list[Post] | list[Comment]:
-    return await repository.get_all(collection)
+@router.get("/user/all", tags=["User"])
+async def get_all(repository: Repository = Depends(Repository.get_instance)) -> list[User] | list[Post] | list[Comment]:
+    return await repository.get_all(0)
+@router.get("/post/all", tags=["Post"])
+async def get_all(repository: Repository = Depends(Repository.get_instance)) -> list[User] | list[Post] | list[Comment]:
+    return await repository.get_all(1)
+@router.get("/comment/all", tags=["Comment"])
+async def get_all(repository: Repository = Depends(Repository.get_instance)) -> list[User] | list[Post] | list[Comment]:
+    return await repository.get_all(2)
+
 @router.get("/collection/{collection}/{user_id}")
 async def get(collection: int, user_id: str, repository: Repository = Depends(Repository.get_instance),
-                                             memcached_client: HashClient = Depends(get_memcached_client)) -> list[User] | list[Post] | list[Comment]:
+                                             memcached_client: HashClient = Depends(get_memcached_client)) -> User | Post | Comment:
     
     obj = await repository.get_by_id(id = user_id, collection = collection)
-    o = [obj]
-    return o
+    return obj
 
-@router.get("/filter")
+@router.get("/user/filter", tags=["User"])
 async def get_by_name(username: str, repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
     return await repository.find_by_username(username = username)
 
 
-@router.get("user/{user_id}", response_model=User)
+@router.get("/user/{user_id}", response_model=User, tags=["User"])
 async def get_by_id(user_id: str,
                     repository: Repository = Depends(Repository.get_instance),
                     memcached_client: HashClient = Depends(get_memcached_client)) -> Any:
@@ -54,13 +60,27 @@ async def get_by_id(user_id: str,
     return user
 
 
-@router.post("/")
+@router.post("/user/", tags=["User"])
 async def add_user(user: UserUpdate,
                       repository: Repository = Depends(Repository.get_instance),
                       search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> str:
-    student_id = await repository.create(user)
-    await search_repository.create(student_id, user)
-    return student_id
+    id = await repository.create(user)
+    await search_repository.create(id, user)
+    return id
+@router.post("/post/", tags=["Post"])
+async def add_post(post: PostUpdate,
+                      repository: Repository = Depends(Repository.get_instance),
+                      search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> str:
+    id = await repository.create_post(post)
+    await search_repository.create_post(id, post)
+    return id
+@router.post("/comment/", tags=["Comment"])
+async def add_comment(comment: CommentUpdate,
+                      repository: Repository = Depends(Repository.get_instance),
+                      search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> str:
+    id = await repository.create_comment(comment)
+    # await search_repository.create_(id, comment)
+    return id
 
 '''
 
