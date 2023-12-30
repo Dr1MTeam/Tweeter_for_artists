@@ -82,24 +82,44 @@ async def add_comment(comment: CommentUpdate,
     # await search_repository.create_(id, comment)
     return id
 
-'''
 
-@router.delete("/{student_id}")
-async def remove_user(user_id: int,
+
+@router.delete("/user/{user_id}")
+async def remove_user(user_id: str,
                          repository: Repository = Depends(Repository.get_instance),
                          search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Response:
-    if not ObjectId.is_valid(student_id):
+    if not ObjectId.is_valid(user_id):
         return Response(status_code=status.HTTP_400_BAD_REQUEST)
-    student = await repository.delete(student_id)
-    if student is None:
+    user = await repository.delete_user(user_id)
+    if user is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    await search_repository.delete(student_id)
+    await search_repository.delete(user_id)
+    return Response()
+
+@router.delete("/post/{post_id}")
+async def remove_post(post_id: str,
+                         repository: Repository = Depends(Repository.get_instance),
+                         search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Response:
+    if not ObjectId.is_valid(post_id):
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    post = await repository.delete_post(post_id)
+    if post is None:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    await search_repository.delete_post(post_id)
+    return Response()
+
+@router.delete("/comment/{post_id}")
+async def remove_comment(comment_id: str,
+                         repository: Repository = Depends(Repository.get_instance)) -> Response:
+    if not ObjectId.is_valid(comment_id):
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    comment = await repository.delete_post(comment_id)
     return Response()
 
 
-@router.put("/{student_id}", response_model=Student)
+@router.put("/{user_id}", response_model=User)
 async def update_student(student_id: str,
-                         student_model: UpdateStudentModel,
+                         student_model: UserUpdate,
                          repository: Repository = Depends(Repository.get_instance),
                          search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
     if not ObjectId.is_valid(student_id):
@@ -109,5 +129,3 @@ async def update_student(student_id: str,
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     await search_repository.update(student_id, student_model)
     return student
-
-'''
