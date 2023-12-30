@@ -30,7 +30,7 @@ async def get_all(repository: Repository = Depends(Repository.get_instance)) -> 
 async def get_all(repository: Repository = Depends(Repository.get_instance)) -> list[User] | list[Post] | list[Comment]:
     return await repository.get_all(2)
 
-@router.get("/collection/{collection}/{user_id}")
+@router.get("/debug_get/{collection}/{user_id}")
 async def get(collection: int, user_id: str, repository: Repository = Depends(Repository.get_instance),
                                              memcached_client: HashClient = Depends(get_memcached_client)) -> User | Post | Comment:
     
@@ -117,15 +117,15 @@ async def remove_comment(comment_id: str,
     return Response()
 
 
-@router.put("/{user_id}", response_model=User)
-async def update_student(student_id: str,
-                         student_model: UserUpdate,
+@router.put("/user/{user_id}", response_model=User)
+async def update_user(user_id: str,
+                         user_model: UserUpdate,
                          repository: Repository = Depends(Repository.get_instance),
                          search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
-    if not ObjectId.is_valid(student_id):
+    if not ObjectId.is_valid(user_id):
         return Response(status_code=status.HTTP_400_BAD_REQUEST)
-    student = await repository.update(student_id, student_model)
-    if student is None:
+    user = await repository.update(user_id, user_model)
+    if user is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    await search_repository.update(student_id, student_model)
-    return student
+    await search_repository.update(user_id, user_model)
+    return user
