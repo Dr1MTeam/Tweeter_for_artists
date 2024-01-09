@@ -40,7 +40,9 @@ async def get(collection: int, user_id: str, repository: Repository = Depends(Re
 @router.get("/user/filter", tags=["User"])
 async def get_by_name(username: str, repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
     return await repository.find_by_username(username = username)
-
+@router.get("/post/filter", tags=["Post"])
+async def get_by_title(title: str, repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
+    return await repository.find_by_title(title = title)
 
 @router.get("/user/{user_id}", response_model=User, tags=["User"])
 async def get_by_id(user_id: str,

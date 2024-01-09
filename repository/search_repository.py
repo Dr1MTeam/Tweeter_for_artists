@@ -43,7 +43,7 @@ class SearchStudentRepository:
         query_body = {
         "query": {
             "match": {
-                "username": username
+                "username": username   # Вот это поле отвечает за поиск, "username" - поле где ищем, username - переменная (str), которую ищем
                 }
             }
         }
@@ -62,18 +62,21 @@ class SearchStudentRepository:
         if not index_exist:
             return []
 
-        query = {
-            "match": {
-                "name": {
-                    "query": title
+        query_body = {
+                "query": {
+                    "match": {
+                        "title": {
+                            "query": title,
+                            "minimum_should_match": "75%"
+                        } 
                 }
             }
         }
-        response = await self._elasticsearch_client.search(index=self._elasticsearch_index[1], query=query, filter_path=['hits.hits._id', 'hits.hits._source'])
-        if 'hits' not in response.body:
+        response = await self._elasticsearch_client.search(index=self._elasticsearch_index[1], body=query_body, filter_path=['hits.hits._id', 'hits.hits._source'])
+        if 'hits' not in response:
             return []
-        result = response.body['hits']['hits']
-        posts = list(map(lambda user: User(id=user['_id'], username=user['_source']['name'], email=user['_source']['email']), result))
+        result = response['hits']['hits']
+        posts = list(map(lambda _X: Post(id=_X['_id'], user_id=_X['_source']['user_id'], title=_X['_source']['title'], content=_X['_source']['content'], comments=_X['_source']['comments']), result))
 
         return posts
 
